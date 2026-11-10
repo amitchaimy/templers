@@ -1,0 +1,789 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<title>האוצר האבוד של הטמפלרים</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Frank+Ruhl+Libre:wght@500;700;900&family=Heebo:wght@400;500;700;800&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<script>
+/* =====================================================================
+   הגדרות – הדביקו כאן את ה-config מ-Firebase (ראו README.md)
+   אם משאירים null – האפליקציה רצה ב"מצב הדגמה" (כמה לשוניות באותו מחשב)
+   ===================================================================== */
+window.FIREBASE_CONFIG = {
+  apiKey: "AIzaSyB3dtqaWNY1UEALiE-DPdh5wywFFOaknSA",
+  authDomain: "templers-4d445.firebaseapp.com",
+  databaseURL: "https://templers-4d445-default-rtdb.europe-west1.firebasedatabase.app",
+  projectId: "templers-4d445",
+  storageBucket: "templers-4d445.firebasestorage.app",
+  messagingSenderId: "554138969999",
+  appId: "1:554138969999:web:bf9bdc978e18ff59424dfa"
+};
+/* דוגמה:
+window.FIREBASE_CONFIG = {
+  apiKey: "....",
+  authDomain: "....firebaseapp.com",
+  databaseURL: "https://....firebasedatabase.app",
+  projectId: "....",
+  storageBucket: "....",
+  messagingSenderId: "....",
+  appId: "...."
+};
+*/
+window.ADMIN_PIN = '2611';
+</script>
+<style>
+  :root{--bg:#f4ead8;--paper:#fffaf0;--ink:#2b2118;--muted:#7a6a58;--roof:#b5462e;--roof-d:#8e3220;--gold:#c99a2e;--green:#3f7a4f;--line:#e2d3b8;--shadow:0 6px 20px rgba(80,50,20,.12)}
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  html,body{margin:0;background:var(--bg);color:var(--ink);font-family:'Heebo',system-ui,sans-serif;font-size:17px;line-height:1.55}
+  body{background:radial-gradient(circle at 20% 0%,rgba(201,154,46,.15),transparent 40%),radial-gradient(circle at 100% 100%,rgba(181,70,46,.10),transparent 45%),var(--bg);min-height:100vh}
+  main{max-width:520px;margin:0 auto;padding:16px 16px 60px}
+  main.wide{max-width:1200px}
+  h1,h2,h3{font-family:'Frank Ruhl Libre',serif;margin:0 0 8px;line-height:1.2}
+  h1{font-size:30px;font-weight:900} h2{font-size:24px} h3{font-size:19px}
+  p{margin:6px 0}
+  .muted{color:var(--muted);font-size:15px}
+  .card{background:var(--paper);border:1px solid var(--line);border-radius:18px;padding:18px;margin:14px 0;box-shadow:var(--shadow)}
+  .hero{text-align:center;padding:24px 18px}
+  .roofs{display:flex;justify-content:center;gap:6px;margin-bottom:10px}
+  .roofs span{width:0;height:0;border-left:22px solid transparent;border-right:22px solid transparent;border-bottom:20px solid var(--roof)}
+  .roofs span:nth-child(2){border-bottom-color:var(--roof-d);transform:translateY(-6px)}
+  .btn{display:block;width:100%;border:0;border-radius:14px;padding:14px 16px;font:700 18px 'Heebo';background:var(--roof);color:#fff;cursor:pointer;box-shadow:0 4px 0 var(--roof-d);margin-top:12px}
+  .btn:active{transform:translateY(2px);box-shadow:0 2px 0 var(--roof-d)}
+  .btn.secondary{background:#fff;color:var(--ink);border:2px solid var(--line);box-shadow:none}
+  .btn.bright{background:#4cd964;color:#123d1c;box-shadow:0 4px 0 #2ea84a;font-size:20px}
+  .btn.green{background:var(--green);box-shadow:0 4px 0 #2b5737}
+  .btn.small{display:inline-block;width:auto;padding:8px 14px;font-size:15px;margin:4px}
+  .btn:disabled{opacity:.45}
+  .linkbtn{background:none;border:0;color:var(--muted);font:500 14px 'Heebo';text-decoration:underline;margin:22px auto 0;display:block;cursor:pointer}
+  input.txt{width:100%;padding:14px;border-radius:12px;border:2px solid var(--line);font:700 20px 'Heebo';text-align:center;background:#fff;color:var(--ink)}
+  input.code4{letter-spacing:10px;font-size:28px}
+  label.lbl{display:block;font-weight:700;margin:14px 0 6px}
+  .role{display:flex;align-items:center;gap:12px;background:#fff;border:2px solid var(--line);border-radius:14px;padding:12px;margin-top:10px}
+  .role .ic{font-size:30px} .role b{display:block;font-size:18px}
+  .tag{display:inline-block;background:var(--ink);color:#fff;border-radius:999px;padding:3px 12px;font-size:13px;font-weight:700}
+  .tag.gold{background:var(--gold)} .tag.red{background:var(--roof)} .tag.green{background:var(--green)}
+  .stagebar{display:flex;gap:6px;margin:6px 0 2px}
+  .stagebar i{flex:1;height:7px;border-radius:9px;background:var(--line)}
+  .stagebar i.done{background:var(--green)} .stagebar i.now{background:var(--roof)}
+  .clue{background:#fff7e3;border:2px dashed var(--gold);border-radius:16px;padding:16px;margin-top:10px;font-size:17.5px}
+  .clue .who{font-weight:800;color:#8a6510;font-size:14px;margin-bottom:4px}
+  .q{font-weight:800;font-size:18px;margin:6px 0 4px}
+  .hint{font-size:14px;background:#eef3ee;color:#2b5737;border-radius:10px;padding:6px 10px;display:inline-block;margin:4px 0 8px;font-weight:600}
+  .opt{display:flex;align-items:center;gap:12px;width:100%;text-align:right;background:#fff;border:2px solid var(--line);border-radius:14px;padding:12px;margin-top:8px;font:500 16px 'Heebo';color:var(--ink);cursor:pointer}
+  .opt .d{flex:0 0 38px;height:38px;border-radius:10px;background:var(--bg);display:grid;place-items:center;font-weight:900;font-size:20px;font-family:'Frank Ruhl Libre',serif}
+  .opt.on{border-color:var(--roof);background:#fbe9e2} .opt.on .d{background:var(--roof);color:#fff}
+  .opt:disabled{opacity:.5}
+  .mydigit{margin-top:12px;text-align:center;font-weight:700}
+  .mydigit .big{display:inline-block;font:900 34px 'Frank Ruhl Libre';background:var(--ink);color:#fff;border-radius:12px;padding:0 16px;margin:0 6px;vertical-align:middle}
+  .lock{background:var(--ink);color:#fff;border-radius:18px;padding:18px;margin:16px 0}
+  .lock h3{color:#fff}
+  .slots{display:flex;gap:8px;justify-content:center;direction:ltr;margin:12px 0}
+  .slot{text-align:center}
+  .slot input{width:52px;height:62px;border-radius:12px;border:3px solid #5b4a3a;background:#3a2e24;color:#fff;font:900 30px 'Frank Ruhl Libre';text-align:center;outline:none}
+  .slot input:focus{border-color:var(--gold)}
+  .slot input.bad{border-color:#e05a3d;animation:sh .35s}
+  .slot small{display:block;font-size:12px;color:#c9b8a0;margin-top:3px}
+  @keyframes sh{25%{transform:translateX(-4px)}75%{transform:translateX(4px)}}
+  .msg{margin-top:10px;border-radius:12px;padding:10px 12px;font-weight:600;font-size:15px}
+  .msg.err{background:#fde3dc;color:#8e3220} .msg.ok{background:#e1f0e4;color:#2b5737} .msg.info{background:#efe6d3;color:var(--ink)}
+  .lock .msg.err{background:#5a2a20;color:#ffd9cf}
+  .word{font:900 40px 'Frank Ruhl Libre';color:var(--roof-d);margin:10px 0}
+  .bignum{font:900 60px 'Frank Ruhl Libre';color:var(--gold);line-height:1}
+  .steps{padding-inline-start:20px;margin:6px 0} .steps li{margin:5px 0}
+  .chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+  .chip{background:#fff;border:2px solid var(--line);border-radius:999px;padding:3px 10px;font-size:14px;font-weight:600}
+  .chip.ok{border-color:var(--green);background:#e1f0e4} .chip.off{opacity:.45}
+  .topbar{display:flex;justify-content:space-between;align-items:center;gap:8px}
+  .timer{font:800 18px 'Heebo';direction:ltr;background:var(--ink);color:#fff;border-radius:10px;padding:2px 10px}
+  .timer.late{background:var(--roof)}
+  .banner{background:var(--roof);color:#fff;border-radius:12px;padding:10px 14px;font-weight:700;text-align:center;margin-top:10px}
+  /* admin */
+  .agrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:14px}
+  .key details{margin:6px 0} .key summary{cursor:pointer;font-weight:700} .key .qa{background:#fff;border:1px solid var(--line);border-radius:12px;padding:10px 12px;margin:8px 0;font-size:15px} .key .ans{display:inline-block;background:#d6ecda;color:#2b5737;border-radius:8px;padding:2px 10px;font-weight:700;margin-top:4px}
+  .gcard{background:var(--paper);border:1px solid var(--line);border-radius:16px;padding:14px;box-shadow:var(--shadow)}
+  .gcard.done{border:2px solid var(--green)}
+  .prow{display:flex;align-items:center;gap:6px;padding:6px 0;border-bottom:1px solid var(--line);font-size:14px;flex-wrap:wrap}
+  .prow:last-child{border-bottom:0}
+  .dot{width:9px;height:9px;border-radius:50%;background:#bbb;flex:0 0 9px} .dot.on{background:#38a169}
+  .pname{font-weight:700;flex:1;min-width:70px}
+  .mini{font-size:12px;border-radius:6px;padding:1px 6px;background:var(--bg)}
+  .mini.ok{background:#d6ecda;color:#2b5737} .mini.bad{background:#f8d5cc;color:#8e3220} .mini.wait{background:#eee;color:#888}
+  select.mv{font:500 13px 'Heebo';border-radius:8px;border:1px solid var(--line);padding:2px}
+  .x{background:none;border:0;color:#b33;cursor:pointer;font-size:15px}
+  .bar{height:12px;border-radius:9px;background:var(--line);overflow:hidden;margin:6px 0}
+  .bar i{display:block;height:100%;background:var(--green);transition:width .4s}
+  .stats{display:flex;gap:10px;flex-wrap:wrap}
+  .stat{background:#fff;border:1px solid var(--line);border-radius:12px;padding:8px 14px;text-align:center}
+  .stat b{display:block;font:900 26px 'Frank Ruhl Libre'}
+  .adminhead{display:flex;flex-wrap:wrap;gap:16px;align-items:center;justify-content:space-between}
+  .roomcode{font:900 46px 'Frank Ruhl Libre';letter-spacing:6px;color:var(--roof-d);direction:ltr}
+  #qr img,#qr canvas{border:8px solid #fff;border-radius:8px}
+  /* projector */
+  .proj{text-align:center}
+  .proj .roomcode{font-size:110px}
+  .proj .ptimer{font:900 90px 'Frank Ruhl Libre';direction:ltr}
+  .prow2{display:flex;align-items:center;gap:14px;margin:12px 0;font:800 24px 'Heebo'}
+  .prow2 .bar{flex:1;height:30px;border-radius:14px}
+  .sentence{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;margin-top:12px}
+  .sentence span{background:#fff;border:2px solid var(--line);border-radius:12px;padding:6px 12px;font:800 20px 'Frank Ruhl Libre'}
+  .sentence span.hide{color:transparent;background:#e9dcc4;min-width:110px}
+  .sentence span small{display:block;font:600 13px 'Heebo';color:var(--muted)}
+  .fade{animation:fd .3s ease} @keyframes fd{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+  table.lb{width:100%;border-collapse:separate;border-spacing:0;font-size:15px;border:2px solid var(--ink);border-radius:12px;overflow:hidden;background:#fff}
+  table.lb th{background:var(--ink);color:#fff;padding:9px 6px;font-weight:800;font-size:14px}
+  table.lb td{border-top:1px solid var(--line);border-left:1px solid var(--line);padding:9px 6px;text-align:center;vertical-align:middle}
+  table.lb td:last-child{border-left:0}
+  table.lb tr:nth-child(even) td{background:#fbf6ec}
+  table.lb .rk{font-size:24px;font-weight:900} table.lb .fin{font:900 20px 'Frank Ruhl Libre';direction:ltr}
+  table.lb .pen{color:var(--roof-d);direction:ltr;font-weight:700} table.lb .tm{direction:ltr;font-weight:700}
+  table.lb tr.nf td{color:#999} table.lb tr.win td{background:#fdf0c8 !important}
+  table.lb tr.mine td{outline:none;box-shadow:inset 0 0 0 9999px rgba(76,217,100,.12)}
+  .demo{position:fixed;bottom:0;left:0;right:0;background:#2b2118;color:#f4ead8;font-size:12px;text-align:center;padding:3px;z-index:9}
+</style>
+</head>
+<body>
+<main id="app"><div class="card hero">טוען…</div></main>
+
+<script type="module">
+/* ===================================================================
+   CONTENT
+   =================================================================== */
+const ROLES=[
+  {name:'ההיסטוריון/ית',icon:'📜',desc:'מתי ואיך הכול התחיל'},
+  {name:'מומחה/ית האמונה',icon:'📖',desc:'במה האמינו ומה קראו'},
+  {name:'חוקר/ת המנהגים',icon:'🛡️',desc:'איך חיו, לבשו ונלחמו'},
+  {name:'המשווה',icon:'⚖️',desc:'במה היו שונים מאחרים'},
+  {name:'הנווט/ת',icon:'🧭',desc:'מקומות, מבצרים ודרכים'}
+];
+// question of role r is answered by the clue of role (r+1)%5 ; first option is correct
+const STAGES=[
+ {title:'מנעול 1: המקור',sub:'מאיזו דת הגיעו, מתי ואיך התחילו?',
+  clues:[
+   'מסדר הטמפלרים נוסד בירושלים בסביבות 1119 – כ־20 שנה אחרי שהצלבנים כבשו את העיר במסע הצלב הראשון (1099) – כדי להגן על צליינים נוצרים בדרכים. ב־1120 תמך בהם מלך ירושלים בלדווין השני, וב־1129 הכנסייה הכירה בהם רשמית בוועידת טרואה שבצרפת.',
+   'השם המלא של המסדר: "החיילים העניים של ישו ושל היכל שלמה". המטה הראשון שלהם היה בהר הבית, במבנה שהצלבנים חשבו שעומד במקום היכל שלמה – ומכאן השם "טמפלרים" (Temple = היכל, מקדש).',
+   'המייסד והמאסטר הגדול הראשון: האביר הצרפתי הוגו דה פאן (Hugues de Payens). בתחילה היו במסדר רק כ־9 אבירים, רובם קרובי משפחה שלו, והם חיו מתרומות.',
+   'הדת: נצרות קתולית. הטמפלרים לא היו דת חדשה ולא כת – הם היו "מסדר" בתוך הכנסייה הקתולית, כמו מסדרי נזירים אחרים, וראש הכנסייה שלהם היה האפיפיור ברומא.',
+   'ב־1139 האפיפיור אינוקנטיוס השני פרסם צו (בולה) בשם Omne Datum Optimum. לפיו הטמפלרים לא כפופים לבישופים או למלכים המקומיים – אלא רק לאפיפיור עצמו. הם גם פטורים ממסים.'],
+  qs:[
+   {q:'מאיפה הגיע השם "טמפלרים"?',o:['מהמטה שלהם בהר הבית – במקום "היכל שלמה"','מכנסייה בשם "טמפל" בפריז','משם המשפחה של המייסד','מהמילה הלטינית ל"אביר"']},
+   {q:'מי ייסד את המסדר והיה המאסטר הגדול הראשון?',o:['הוגו דה פאן','ז׳אק דה מולה','ברנר מקלרבו','בלדווין השני']},
+   {q:'לאיזה זרם דתי השתייכו הטמפלרים?',o:['נצרות קתולית','נצרות פרוטסטנטית','נצרות אורתודוקסית','דת חדשה משלהם']},
+   {q:'למי היו הטמפלרים כפופים מ־1139?',o:['לאפיפיור בלבד','למלך צרפת','למלך ירושלים','לבישוף של ירושלים']},
+   {q:'באיזו שנה הכנסייה הכירה רשמית במסדר?',o:['1129','1119','1099','1139']}]},
+ {title:'מנעול 2: האמונה והכללים',sub:'עקרונות, ספרי קודש, מצוות ומנהגים',
+  clues:[
+   'העיקרון המרכזי: הטמפלרים היו "נזירים לוחמים". כמו נזירים, הם נשבעו שלוש שבועות – עוני (בלי רכוש פרטי), צניעות (לא מתחתנים) וציות (לפקודות המסדר). אבל במקום רק להתפלל – הם גם נלחמו בחרב, להגנת הנוצרים בארץ הקודש.',
+   'ספרי הקודש: התנ"ך והברית החדשה, בלטינית. בנוסף, לכל אביר היה ספר חוקים מחייב – "הכלל הלטיני" – 68 סעיפים שנכתבו בוועידת טרואה ב־1129, שקבעו איך לאכול, להתלבש, להתפלל ולהילחם.',
+   'מנהגים: גלימה לבנה עם צלב אדום – הצלב סימל נכונות למות למען האמונה. האבירים אכלו יחד בשתיקה בזמן שמישהו מקריא מכתבי הקודש, התפללו כמה פעמים ביום, ונאסר עליהם לצוד – חוץ מאריות.',
+   'הסמל (החותם) של המסדר: שני אבירים רכובים על סוס אחד – כדי להראות כמה הם עניים וצנועים. ובכל זאת, המסדר עצמו קיבל המון תרומות של כסף ואדמות והפך לעשיר מאוד.',
+   'דמות מרכזית: ברנר מקלרבו – נזיר ואחד מאנשי הכנסייה החשובים בתקופה. הוא כתב חיבור בשבח "האבירות החדשה", עזר לנסח את חוקי המסדר ושכנע את אירופה לתמוך בטמפלרים.'],
+  qs:[
+   {q:'איך נקרא ספר החוקים של הטמפלרים?',o:['הכלל הלטיני','ספר האבירים','חוקי ירושלים','צו 1139']},
+   {q:'מה סימל הצלב האדום על הגלימה?',o:['נכונות למות למען האמונה','נאמנות למלך צרפת','דרגה של מפקד','שהאביר נלחם בקרב']},
+   {q:'מה רצו להראות בסמל של שני אבירים על סוס אחד?',o:['שהם עניים וצנועים','שהם נלחמים תמיד בזוגות','שבמלחמה חסרו להם סוסים','שהם אחים בדם']},
+   {q:'מי שכנע את אירופה לתמוך בטמפלרים?',o:['ברנר מקלרבו','הוגו דה פאן','פיליפ הרביעי','קלמנס החמישי']},
+   {q:'לאילו שלוש שבועות נשבעו הטמפלרים?',o:['עוני, צניעות וציות','אומץ, כבוד ונאמנות','תפילה, צום וצדקה','שתיקה, עבודה ולימוד']}]},
+ {title:'מנעול 3: הייחוד והנפילה',sub:'במה שונים מהזרם המרכזי – ומה קרה להם',
+  clues:[
+   'במה שונים מהזרם המרכזי: עד אז בנצרות היו נזירים (שמתפללים) ואבירים (שנלחמים) – שני עולמות נפרדים. הטמפלרים היו המסדר הראשון שחיבר ביניהם. הם גם המציאו מעין "בנק": צליין הפקיד כסף באירופה, קיבל מכתב, ועם המכתב משך את הכסף בארץ הקודש.',
+   'הקשר לאזור שלנו: ב־1218 הטמפלרים התחילו לבנות את מבצר עתלית (Château Pèlerin – "מבצר עולי הרגל"), כ־13 ק"מ דרומית לחיפה. אחרי שירושלים אבדה, המטה שלהם עבר לעכו – ושם אפשר ללכת עד היום ב"מנהרת הטמפלרים" (150 מטר), שהתגלתה ב־1994.',
+   'ב־1291 הממלוכים כבשו את עכו אחרי מצור, והממלכה הצלבנית בארץ ישראל הגיעה לסופה. מבצר עתלית ננטש באותה שנה, והטמפלרים עזבו את הארץ.',
+   'יום שישי, 13 באוקטובר 1307: מלך צרפת פיליפ הרביעי, שהיה חייב למסדר הרבה כסף, הורה לעצור את כל הטמפלרים בצרפת והאשים אותם בכפירה. רבים מהם הודו בעינויים בדברים שלא עשו.',
+   'ב־1312 האפיפיור קלמנס החמישי, בלחץ מלך צרפת, פירק את המסדר. ב־1314 המאסטר הגדול האחרון, ז׳אק דה מולה, הוצא להורג בשריפה בפריז.'],
+  qs:[
+   {q:'איזה מבצר בנו הטמפלרים כ־13 ק"מ מחיפה?',o:['מבצר עתלית','מבצר נמרוד','מבצר יחיעם','מבצר מונפור']},
+   {q:'מה קרה ב־1291?',o:['הממלוכים כבשו את עכו','המסדר פורק','הטמפלרים נעצרו בצרפת','נבנה מבצר עתלית']},
+   {q:'מי הורה לעצור את הטמפלרים ב־1307?',o:['מלך צרפת פיליפ הרביעי','האפיפיור קלמנס החמישי','צלאח א־דין','מלך אנגליה']},
+   {q:'מי היה המאסטר הגדול האחרון?',o:['ז׳אק דה מולה','הוגו דה פאן','ברנר מקלרבו','פיליפ הרביעי']},
+   {q:'במה הטמפלרים היו שונים מכל מה שהיה לפניהם בנצרות?',o:['חיברו נזירים ואבירים במסדר אחד','היו הראשונים להתפלל בלטינית','לא הכירו בסמכות האפיפיור','היו הראשונים שהגיעו לירושלים']}]}
+];
+const SOLO=[
+ {q:'באיזו עיר נוסד מסדר הטמפלרים?',o:['ירושלים','עכו','פריז','רומא']},
+ {q:'מה היה צבע הצלב על הגלימה הלבנה?',o:['אדום','שחור','זהב','כחול']},
+ {q:'כמה אבירים היו במסדר בהתחלה, בערך?',o:['9','90','900','9,000']},
+ {q:'באיזו עיר הוצא להורג ז׳אק דה מולה?',o:['פריז','ירושלים','רומא','עכו']},
+ {q:'איזו חיה הטמפלרים הורשו לצוד?',o:['אריות','צבאים','זאבים','חזירי בר']},
+ {q:'מה פירוש השם הצרפתי של מבצר עתלית?',o:['מבצר עולי הרגל','מבצר האריות','מבצר היכל שלמה','מבצר הים']},
+ {q:'מה המציאו הטמפלרים כדי שצליינים לא יסתובבו עם כסף?',o:['מכתבים שאיתם מושכים כסף – מעין בנק','מטבעות זהב משלהם','שומר צמוד לכל צליין','מס על כל דרך']},
+ {q:'באיזה יום בשבוע נעצרו הטמפלרים בצרפת ב־1307?',o:['יום שישי','יום ראשון','יום שני','יום שבת']}
+];
+// hints for facilitators – nudge without giving the answer away
+const HINTS=[
+ ['חשבו על המילה האנגלית Temple – ואיפה בירושלים ישב המטה שלהם.',
+  'הוא היה המאסטר הגדול הראשון – לא האחרון.',
+  'תחשבו למי הם היו כפופים – מי ישב ברומא?',
+  'הצו של 1139 שחרר אותם מסמכות המלכים והבישופים. אז מי נשאר?',
+  'שנת הייסוד ושנת ההכרה הן לא אותה שנה – ההכרה הגיעה בוועידה בצרפת.'],
+ ['החוקים נכתבו בשפה של הכנסייה באותה תקופה.',
+  'זה לא סימן של דרגה או של מלך – זה קשור לאמונה ולהקרבה.',
+  'חשבו על אחת משלוש השבועות שלהם.',
+  'מדובר באיש כנסייה – נזיר, לא אביר ולא מלך.',
+  'אלה שבועות שכל נזיר נשבע, לא שבועות של אבירים.'],
+ ['המבצר על חוף הים, ליד יישוב שנקרא באותו שם.',
+  'באותה שנה הצלבנים איבדו את העיר האחרונה שלהם בארץ.',
+  'תחשבו מי היה חייב להם הרבה כסף…',
+  'הוא הוצא להורג בפריז ב־1314.',
+  'חשבו על הכינוי "נזירים לוחמים" – מה הוא מחבר?']
+];
+const SOLO_HINTS=['זו העיר שבה היה הר הבית.','כמו הצבע של הצלבנים על הגלימות.','מספר קטן מאוד – הם היו מעטים.','בירת צרפת.','החיה שנקראת "מלך החיות".','הם בנו אותו בשביל הצליינים.','ככה עובדים בנקים גם היום.','יום שנחשב עד היום ביש מזל כשהוא נופל על ה־13.'];
+const SENTENCE=['האבירים הטמפלרים','היו','נזירים','לוחמים','שנשבעו','לעוני,','לצניעות','ולציות'];
+const APP_VERSION='8';
+const LOCKOUT_SEC=15, MAX_GROUP=5, CODE_PENALTY=30, SOLO_PENALTY=20;
+
+/* ===================================================================
+   BACKEND (Firebase or local demo)
+   =================================================================== */
+const parts=p=>p.split('/').filter(Boolean);
+let DB, DEMO=!window.FIREBASE_CONFIG;
+if(!DEMO){
+  const {initializeApp}=await import('https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js');
+  const F=await import('https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js');
+  const app=initializeApp(window.FIREBASE_CONFIG); const db=F.getDatabase(app);
+  let offset=0; F.onValue(F.ref(db,'.info/serverTimeOffset'),s=>offset=s.val()||0);
+  DB={
+    get:async p=>(await F.get(F.ref(db,p))).val(),
+    set:(p,v)=>F.set(F.ref(db,p),v),
+    update:(p,o)=>F.update(F.ref(db,p),o),
+    remove:p=>F.remove(F.ref(db,p)),
+    on:(p,cb)=>F.onValue(F.ref(db,p),s=>cb(s.val())),
+    tx:(p,fn)=>F.runTransaction(F.ref(db,p),fn),
+    onDisc:(p,v)=>F.onDisconnect(F.ref(db,p)).set(v),
+    ts:()=>F.serverTimestamp(),
+    now:()=>Date.now()+offset,
+    connected:cb=>F.onValue(F.ref(db,'.info/connected'),s=>cb(!!s.val()))
+  };
+}else{
+  const KEY='templers_demo_db', listeners=[];
+  const read=()=>{try{return JSON.parse(localStorage.getItem(KEY))||{}}catch(e){return{}}};
+  const getAt=(t,p)=>{let c=t;for(const k of parts(p)){if(c==null||typeof c!=='object')return null;c=c[k]}return c===undefined?null:c};
+  const setAt=(t,p,v)=>{const ks=parts(p);if(!ks.length)return v;let c=t;for(let i=0;i<ks.length-1;i++){if(c[ks[i]]==null||typeof c[ks[i]]!=='object')c[ks[i]]={};c=c[ks[i]]}if(v===null||v===undefined)delete c[ks.at(-1)];else c[ks.at(-1)]=v;return t};
+  const resolveTs=v=>{if(v&&typeof v==='object'){if(v['.sv'])return Date.now();for(const k in v)v[k]=resolveTs(v[k])}return v};
+  const fire=()=>{const t=read();listeners.forEach(l=>l.cb(JSON.parse(JSON.stringify(getAt(t,l.p)))))};
+  const write=t=>{localStorage.setItem(KEY,JSON.stringify(t));setTimeout(fire,0)};
+  window.addEventListener('storage',e=>{if(e.key===KEY)fire()});
+  DB={
+    get:async p=>getAt(read(),p),
+    set:async(p,v)=>{write(setAt(read(),p,resolveTs(JSON.parse(JSON.stringify(v??null)))))},
+    update:async(p,o)=>{let t=read();for(const k in o)t=setAt(t,p+'/'+k,resolveTs(JSON.parse(JSON.stringify(o[k]??null))));write(t)},
+    remove:async p=>{write(setAt(read(),p,null))},
+    on:(p,cb)=>{const l={p,cb};listeners.push(l);setTimeout(()=>cb(getAt(read(),p)),0);return()=>listeners.splice(listeners.indexOf(l),1)},
+    tx:async(p,fn)=>{const t=read();const nv=fn(getAt(t,p));if(nv!==undefined){write(setAt(t,p,resolveTs(nv)));return{committed:true}}return{committed:false}},
+    onDisc:()=>{},
+    ts:()=>({'.sv':'timestamp'}),
+    now:()=>Date.now(),
+    connected:cb=>cb(true)
+  };
+  document.body.insertAdjacentHTML('beforeend','<div class="demo">מצב הדגמה – בלי Firebase, עובד רק בלשוניות של אותו דפדפן (ראו README להפעלה אמיתית)</div>');
+}
+
+/* ===================================================================
+   HELPERS
+   =================================================================== */
+function rng(seed){return function(){seed|=0;seed=seed+0x6D2B79F5|0;let t=Math.imul(seed^seed>>>15,1|seed);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}}
+function shuffle(a,r){a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(r()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
+function hashStr(s){let h=2166136261;for(const c of String(s))h=Math.imul(h^c.charCodeAt(0),16777619);return h>>>0}
+const esc=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+function optionsFor(room,g,s,r){
+  const R=rng(hashStr(room)+g*7919+s*613+r*97);
+  const q=STAGES[s].qs[r]; const digits=shuffle([1,2,3,4,5,6,7,8,9],R).slice(0,4); const order=shuffle([0,1,2,3],R);
+  return order.map((oi,k)=>({text:q.o[oi],digit:digits[k],correct:oi===0}));
+}
+const correctDigit=(room,g,s,r)=>optionsFor(room,g,s,r).find(o=>o.correct).digit;
+const codeFor=(room,g,s)=>[0,1,2,3,4].map(r=>correctDigit(room,g,s,r)).join('');
+function membersOf(game,g){
+  return Object.entries(game.players||{}).filter(([,p])=>p.group==g).sort((a,b)=>(a[1].joinedAt-b[1].joinedAt)||(a[0]<b[0]?-1:1)).map(([id,p])=>({id,...p}));
+}
+function rolesOf(game,g,pid){const m=membersOf(game,g);const i=m.findIndex(x=>x.id===pid);if(i<0||!m.length)return[];return[0,1,2,3,4].filter(r=>r%m.length===i)}
+function roleOwner(game,g,r){const m=membersOf(game,g);return m.length?m[r%m.length]:null}
+function groupIds(game){return Object.keys(game.groups||{}).map(Number).sort((a,b)=>a-b)}
+function soloFor(room,g,idx){const R=rng(hashStr(room)+g*31+idx*17+5);const qi=(g*3+idx)%SOLO.length;const q=SOLO[qi];return{q:q.q,opts:shuffle(q.o.map((t,i)=>({text:t,correct:i===0})),R)}}
+function chunkFor(nGroups,gi){const n=SENTENCE.length,a=Math.floor(gi*n/nGroups),b=Math.floor((gi+1)*n/nGroups);return{words:SENTENCE.slice(a,b).join(' '),from:a+1}}
+function fmtTime(ms){if(ms<0)ms=0;const s=Math.round(ms/1000);return String(Math.floor(s/60)).padStart(2,'0')+':'+String(s%60).padStart(2,'0')}
+function playerStageAnswered(game,g,s,pid){const p=game.players?.[pid];return rolesOf(game,g,pid).every(r=>p?.picks?.[s+'_'+r]!=null)}
+function groupDone(game,g){return game.groups?.[g]?.finishedAt!=null}
+function penaltyOf(game,g){
+  const gr=game.groups?.[g]||{};
+  const codeFails=Object.values(gr.fails||{}).reduce((a,f)=>a+(f.count||0),0);
+  const soloWrong=membersOf(game,g).reduce((a,m)=>a+(m.solo?.wrong||0),0);
+  return {codeFails,soloWrong,sec:codeFails*CODE_PENALTY+soloWrong*SOLO_PENALTY};
+}
+function leaderboard(game){
+  return groupIds(game).map(g=>{const gr=game.groups[g]||{},done=groupDone(game,g),pen=penaltyOf(game,g);
+    const raw=done?Math.max(0,Math.round((gr.finishedAt-(game.startedAt||gr.finishedAt))/1000)):null;
+    return {g,done,stage:gr.stage||0,raw,pen,score:done?raw+pen.sec:null}})
+   .sort((a,b)=>a.done!==b.done?(a.done?-1:1):a.done?(a.score-b.score):((b.stage-a.stage)||(a.pen.sec-b.pen.sec)));
+}
+const fmtSec=sec=>fmtTime(sec*1000);
+const MEDALS=['🥇','🥈','🥉'];
+function vLeaderboard(game,big,mine){
+  const lb=leaderboard(game), st=game.status;
+  const rows=lb.map((x,i)=>{
+    const names=membersOf(game,x.g).map(m=>esc(m.name)).join(', ');
+    const status=x.done?'':(x.stage>=3?'🗝️ שאלה אישית':'🔒 מנעול '+(x.stage+1));
+    return `<tr class="${x.done?'':'nf'} ${i===0&&x.done?'win':''} ${x.g===mine?'mine':''}"><td class="rk">${x.done?(MEDALS[i]||i+1):'–'}</td>
+      <td style="text-align:right"><b>קבוצה ${x.g}${x.g===mine?' (אתם)':''}</b><div class="muted" style="font-size:${big?15:12}px">${names}</div></td>
+      <td class="${x.done?'tm':''}">${x.done?fmtSec(x.raw):status}</td>
+      <td class="pen">${x.pen.sec?'+'+fmtSec(x.pen.sec):'—'}<div class="muted" style="font-size:11px">קודים: ${x.pen.codeFails}<br>אישיות: ${x.pen.soloWrong}</div></td>
+      <td class="fin">${x.done?fmtSec(x.score):'—'}</td></tr>`}).join('');
+  return `<table class="lb ${big?'big':''}"><tr><th>מקום</th><th style="text-align:right">קבוצה</th><th>זמן</th><th>עונשים</th><th>זמן סופי</th></tr>${rows}</table>
+   <p class="muted" style="font-size:12px;margin-top:6px">זמן סופי = זמן עד פתיחת התיבה + ${CODE_PENALTY} שנ׳ לכל קוד שגוי + ${SOLO_PENALTY} שנ׳ לכל טעות בשאלה אישית. הזמן הנמוך מנצח.</p>`;
+}
+function vFinale(game){
+  const lb=leaderboard(game), win=lb.find(x=>x.done), gs=groupIds(game);
+  const sentence=gs.map((g,i)=>chunkFor(gs.length,i).words).join(' ');
+  return `<div class="card hero" style="background:#fbf1d6"><div style="font-size:50px">🏆</div>
+    <h1>${win?'קבוצה '+win.g+' ניצחה!':'המשחק הסתיים!'}</h1>
+    ${win?`<p style="font-size:18px">${membersOf(game,win.g).map(m=>esc(m.name)).join(' · ')}</p><p class="muted">זמן סופי: <b style="direction:ltr;display:inline-block">${fmtSec(win.score)}</b></p>`:''}</div>
+   <div class="card"><h2>📜 המשפט מהתיבות</h2><p class="muted">כל קבוצה מקריאה בקול את החלק שלה, לפי הסדר:</p>
+    <div class="sentence">${gs.map((g,i)=>`<span><small>${i+1} · קבוצה ${g}</small>${esc(chunkFor(gs.length,i).words)}</span>`).join('')}</div>
+    <p style="margin-top:12px;font-weight:700;text-align:center">"${esc(sentence)}"</p>
+    <p class="muted" style="margin-top:8px">💬 זה מה שהפך אותם למיוחדים: עד הטמפלרים, נזיר לא נלחם ואביר לא נשבע כמו נזיר – הם חיברו בין השניים.</p></div>
+   <div class="card"><h2>🏆 טבלת המנצחים</h2>${vLeaderboard(game,false,(!IS_ADMIN&&me&&game.players?.[me.pid]?.group)||null)}</div>`;
+}
+function genId(){return Math.random().toString(36).slice(2,10)}
+function lsGet(k){try{return JSON.parse(localStorage.getItem(k))}catch(e){return null}}
+function lsSet(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}
+
+/* ===================================================================
+   APP STATE
+   =================================================================== */
+const app=document.getElementById('app');
+const params=new URLSearchParams(location.search);
+const IS_ADMIN=params.has('admin');
+let room=null, game=undefined, unsub=null, lastKey='', codeDraft=['','','','',''], localMsg='', lockUntil=0, adminView='panel', adminPinOk=lsGet('templers_admin_ok')===true;
+const ME_STORE=DEMO?sessionStorage:localStorage;
+function meGet(){try{return JSON.parse(ME_STORE.getItem('templers_me'))}catch(e){return null}}
+function meSet(v){try{ME_STORE.setItem('templers_me',JSON.stringify(v))}catch(e){}}
+let me=meGet(); // {room,pid}
+
+function listen(code){
+  if(unsub)unsub(); room=code; game=undefined;
+  unsub=DB.on('games/'+code,v=>{game=v;scheduleRender()});
+}
+let renderQueued=false;
+function scheduleRender(){if(renderQueued)return;renderQueued=true;requestAnimationFrame(()=>{renderQueued=false;render()})}
+setInterval(tick,500);
+
+/* ===================================================================
+   PLAYER
+   =================================================================== */
+async function joinRoom(code,name){
+  code=code.trim(); name=name.trim().slice(0,20);
+  if(!/^\d{4}$/.test(code))return 'קוד החדר הוא 4 ספרות';
+  if(!name)return 'כתבו שם';
+  const g=await DB.get('games/'+code+'/status');
+  if(!g)return 'לא נמצא חדר עם הקוד הזה';
+  if(g==='ended')return 'המשחק בחדר הזה כבר נגמר';
+  const pid=genId();
+  const p={name,joinedAt:DB.now(),online:true};
+  // late join: put into the smallest group
+  const full=await DB.get('games/'+code);
+  if(full.groups){
+    const gs=Object.keys(full.groups).map(Number);
+    let best=gs[0],bc=1e9;for(const gg of gs){const c=membersOf(full,gg).length;if(c<bc){bc=c;best=gg}}
+    p.group=best;
+  }
+  await DB.set('games/'+code+'/players/'+pid,p);
+  DB.onDisc('games/'+code+'/players/'+pid+'/online',false);
+  me={room:code,pid};meSet(me);listen(code);
+  return null;
+}
+function resumePresence(){if(me&&game?.players?.[me.pid]){DB.set('games/'+me.room+'/players/'+me.pid+'/online',true);DB.onDisc('games/'+me.room+'/players/'+me.pid+'/online',false)}}
+
+function playerKey(){
+  if(!me)return 'join';
+  if(game===undefined)return 'loading';
+  if(!game)return 'kicked';
+  const p=game.players?.[me.pid]; if(!p)return 'kicked';
+  if(game.status==='ended')return 'ended';
+  if(p.group==null)return 'lobby';
+  const g=p.group, gr=game.groups?.[g]||{}, roles=rolesOf(game,g,me.pid).join('');
+  if(game.status!=='playing')return 'grouped|'+g+'|'+roles;
+  if(groupDone(game,g))return 'finish|'+g+'|'+JSON.stringify(leaderboard(game).map(x=>[x.g,x.score,x.stage,x.pen.sec]));
+  const st=gr.stage||0;
+  if(st>=3)return 'solo|'+g+'|'+(p.solo?.done?'done':'q');
+  return 'stage|'+g+'|'+st+'|'+roles+'|'+JSON.stringify(p.picks||{});
+}
+
+function vJoin(err){
+  const pre=params.get('room')||'';
+  return `<div class="card hero"><div class="roofs"><span></span><span></span><span></span></div>
+    <span class="tag gold">עכו · 1291</span><h1 style="margin-top:10px">האוצר האבוד של הטמפלרים</h1>
+    <p class="muted">משחק חקירה קבוצתי על אבירי מסדר הטמפלרים</p></div>
+  <div class="card"><label class="lbl">קוד החדר (מהמנחים)</label>
+    <input class="txt code4" id="jcode" inputmode="numeric" maxlength="4" value="${esc(pre)}" placeholder="0000">
+    <label class="lbl">השם שלך</label><input class="txt" id="jname" maxlength="20" placeholder="שם פרטי">
+    <div id="jerr">${err?`<div class="msg err">${esc(err)}</div>`:''}</div>
+    <button class="btn" id="joinBtn">כניסה למשחק</button></div>`;
+}
+function vLobby(){
+  const n=Object.keys(game.players||{}).length;
+  return `<div class="card hero"><div style="font-size:46px">⏳</div><h2>נכנסת, ${esc(game.players[me.pid].name)}!</h2>
+    <p>מחכים שכולם יצטרפו והמנחים יחלקו לקבוצות.</p><p class="muted">כרגע בחדר: <b>${n}</b> משתתפים</p></div>`;
+}
+function roleBox(r){const R=ROLES[r];return `<div class="role"><div class="ic">${R.icon}</div><div><b>${R.name}</b><span class="muted">${R.desc}</span></div></div>`}
+function teamChips(g,s){
+  return membersOf(game,g).map(m=>{const ok=s==null?false:(s>=3?m.solo?.done:playerStageAnswered(game,g,s,m.id));return `<span class="chip ${ok?'ok':''} ${m.online===false?'off':''}">${ok?'✓ ':''}${esc(m.name)}${m.id===me.pid?' (את/ה)':''}</span>`}).join('');
+}
+function vGrouped(g){
+  const roles=rolesOf(game,g,me.pid);
+  return `<div class="card"><span class="tag red">קבוצה ${g}</span>
+    <h2 style="margin-top:10px">${roles.length>1?'התפקידים שלך':'התפקיד שלך'}</h2>${roles.map(roleBox).join('')}
+    ${roles.length>1?'<p class="muted" style="margin-top:8px">בקבוצה שלך פחות מ־5 חוקרים, אז יש לך יותר מתפקיד אחד.</p>':''}
+    <p style="margin-top:10px"><b>הקבוצה שלך:</b></p><div class="chips">${teamChips(g,null)}</div>
+    <p class="muted" style="margin-top:8px">שבו יחד עם הקבוצה!</p></div>
+  <div class="card"><span class="tag gold">התעלומה</span>
+    <p style="margin-top:8px">1291. עכו נצורה, והעיר עומדת ליפול. רגע לפני הסוף, אבירים טמפלרים החביאו תיבה במנהרה הסודית שמתחת למצודה שלהם – עם <b>שלושה מנעולים</b>. על המכסה חרוט בלטינית: <i>"רק מי שיודע מי היינו – יפתח"</i>. ב־1994 המנהרה התגלתה… והתיבה עדיין נעולה.</p>
+    <ol class="steps"><li>לכל אחד <b>קלף רמז</b> שרק הוא רואה – מקריאים אותו בקול.</li>
+    <li>התשובה לשאלה שלך נמצאת בקלף של <b>חבר אחר</b>.</li>
+    <li>כל תשובה = ספרה. רק עם הספרות של כולם המנעול נפתח.</li>
+    <li>בסוף – שאלה אישית לכל אחד, לבד.</li>
+    <li>⏱️ מנצחת הקבוצה עם <b>הזמן הכי טוב</b>. כל טעות מוסיפה שניות עונש!</li></ol>
+    <div class="msg info">⏳ מחכים שהמנחים יתחילו את המשחק…</div></div>`;
+}
+function stageBar(s){let h='<div class="stagebar">';for(let i=0;i<4;i++)h+=`<i class="${i<s?'done':i===s?'now':''}"></i>`;return h+'</div>'}
+function topCard(g,s,title,sub){
+  return `<div class="card" style="padding:14px 18px"><div class="topbar"><span class="tag red">קבוצה ${g}</span><span class="timer" id="timer">--:--</span></div>
+    ${stageBar(s)}<h2 style="margin-top:8px">${title}</h2>${sub?`<p class="muted">${sub}</p>`:''}<div id="timeup"></div></div>`;
+}
+function vStage(g,s){
+  const st=STAGES[s], roles=rolesOf(game,g,me.pid), p=game.players[me.pid];
+  let h=topCard(g,s,st.title,st.sub);
+  roles.forEach(r=>{h+=`<div class="card"><span class="tag">${ROLES[r].icon} ${ROLES[r].name}</span>
+    <div class="clue"><div class="who">📌 הקלף שלך – הקריאו אותו בקול לקבוצה</div>${esc(st.clues[r])}</div></div>`});
+  roles.forEach(r=>{
+    const opts=optionsFor(room,g,s,r), pick=p.picks?.[s+'_'+r];
+    h+=`<div class="card"><span class="tag">המשימה של ${ROLES[r].name}</span><div class="q">${esc(st.qs[r].q)}</div>
+      <div class="hint">🔎 התשובה מסתתרת בקלף של אחד מחברי הקבוצה – תשאלו!</div>
+      ${opts.map(o=>`<button class="opt ${pick===o.digit?'on':''}" data-pick="${s}_${r}" data-v="${o.digit}"><span class="d">${o.digit}</span><span>${esc(o.text)}</span></button>`).join('')}
+      ${pick?`<div class="mydigit">הספרה שלך:<span class="big">${pick}</span>– במקום <b>${r+1}</b> בקוד (${ROLES[r].icon})</div>`:''}</div>`;
+  });
+  let slots='';for(let i=0;i<5;i++)slots+=`<div class="slot"><input inputmode="numeric" maxlength="1" data-slot="${i}" value="${esc(codeDraft[i])}" autocomplete="off"><small>${ROLES[i].icon}</small></div>`;
+  h+=`<div class="card"><b>מי כבר ענה:</b><div class="chips" id="team">${teamChips(g,s)}</div></div>
+   <div class="lock"><h3>🔒 פתחו את המנעול</h3>
+    <p style="font-size:15px;color:#e8dcc8">אספו את הספרה של כל תפקיד – כל ספרה במשבצת עם הסמל של התפקיד שלה – ומישהו אחד מקליד. <b>בכל מנעול מקליד מישהו אחר!</b><br>⚠️ כל קוד שגוי = <b>${CODE_PENALTY} שניות עונש</b> לקבוצה. תבדקו לפני שמנסים!</p>
+    <div class="slots">${slots}</div><div id="lockmsg">${localMsg}</div>
+    <button class="btn bright" id="tryCode">✔ אישור קוד</button></div>`;
+  return h;
+}
+function failMsg(g,s){
+  const f=game.groups?.[g]?.fails?.[s]; if(!f)return '';
+  const n=(f.wrong||'').split(',').filter(Boolean).length;
+  return `<div class="msg err">❌ ${esc(f.by)} ניסה/תה קוד – ${n===1?'ספרה אחת שגויה':n+' ספרות שגויות'}. <b>+${CODE_PENALTY} שניות עונש</b> (סה״כ ניסיונות שגויים: ${f.count})</div>`;
+}
+function vSolo(g){
+  const p=game.players[me.pid], idx=membersOf(game,g).findIndex(m=>m.id===me.pid), so=soloFor(room,g,idx);
+  let h=topCard(g,3,'המנעול האחרון: אישי 🗝️','שלושה מנעולים נפתחו! עכשיו כל אחד לבד, בלי עזרה – לכל אחד שאלה אחרת. טעות = '+SOLO_PENALTY+' שניות עונש לקבוצה.');
+  if(p.solo?.done){
+    h+=`<div class="card hero"><div style="font-size:44px">✅</div><h2>ענית נכון!</h2><p>מחכים לשאר הקבוצה:</p><div class="chips" id="team" style="justify-content:center">${teamChips(g,3)}</div></div>`;
+  }else{
+    const locked=Date.now()<lockUntil;
+    h+=`<div class="card"><div class="q">${esc(so.q)}</div>
+      ${so.opts.map((o,i)=>`<button class="opt" data-solo="${i}" ${locked?'disabled':''}><span class="d">${'אבגד'[i]}</span><span>${esc(o.text)}</span></button>`).join('')}
+      <div id="solomsg">${locked?`<div class="msg err">לא נכון 🙃 +${SOLO_PENALTY} שניות עונש לקבוצה. נסו שוב בעוד <span id="cd"></span> שניות</div>`:''}</div></div>
+      <div class="card"><b>הקבוצה:</b><div class="chips" id="team">${teamChips(g,3)}</div></div>`;
+  }
+  return h;
+}
+function vFinish(g){
+  const gs=groupIds(game), gi=gs.indexOf(g), ch=chunkFor(gs.length,gi);
+  const lb=leaderboard(game), me_=lb.find(x=>x.g===g), rank=lb.filter(x=>x.done).findIndex(x=>x.g===g)+1;
+  return `<div class="card hero"><div style="font-size:54px">📦✨</div><h1>התיבה נפתחה!</h1>
+    <div class="stats" style="justify-content:center;margin-top:10px">
+      <div class="stat"><b style="direction:ltr">${fmtSec(me_.raw)}</b>זמן</div>
+      <div class="stat"><b style="direction:ltr;color:var(--roof-d)">+${fmtSec(me_.pen.sec)}</b>עונשים</div>
+      <div class="stat"><b style="direction:ltr">${fmtSec(me_.score)}</b>זמן סופי</div></div>
+    <p style="margin-top:10px">מקום נוכחי: <b>${MEDALS[rank-1]||rank}</b> <span class="muted">(יכול להשתנות – קבוצה שתסיים אחריכם עם פחות עונשים עוד יכולה לעקוף!)</span></p>
+    <p style="margin-top:12px">בתיבה מגילה עם חלק ממשפט. לכל קבוצה יש חלק אחר – רק יחד מקבלים את כל המשפט.</p>
+    <div class="word">"${esc(ch.words)}"</div><div class="muted">חלק מספר</div><div class="bignum">${gi+1}</div>
+    <p style="margin-top:12px"><b>זכרו את החלק שלכם!</b> כשהמשחק ייגמר, המשפט המלא והמנצחים יופיעו אצל כולם בטלפון.</p></div>
+   <div class="card"><h2>📊 טבלת הקבוצות – בזמן אמת</h2>${vLeaderboard(game,false,g)}</div>`;
+}
+function vEnded(){return vFinale(game)}
+
+/* ===================================================================
+   ADMIN
+   =================================================================== */
+async function createRoom(){
+  let code;for(let i=0;i<20;i++){code=String(1000+Math.floor(Math.random()*9000));if(!(await DB.get('games/'+code+'/status')))break}
+  await DB.set('games/'+code,{status:'lobby',createdAt:DB.ts(),durationMin:12});
+  lsSet('templers_admin_room',code);listen(code);
+}
+function suggestGroups(n){if(n<=0)return 0;return Math.max(1,Math.ceil(n/MAX_GROUP))}
+async function distribute(nGroups){
+  const ids=shuffle(Object.keys(game.players||{}),Math.random);
+  const n=ids.length;if(!n)return;nGroups=Math.max(1,Math.min(nGroups||suggestGroups(n),n));
+  const upd={};const groups={};
+  for(let g=1;g<=nGroups;g++)groups[g]={stage:0};
+  ids.forEach((id,i)=>{upd['players/'+id+'/group']=(i%nGroups)+1;upd['players/'+id+'/picks']=null;upd['players/'+id+'/solo']=null});
+  upd.groups=groups;upd.status='grouped';
+  await DB.update('games/'+room,upd);
+}
+async function addGroup(){const gs=groupIds(game);const n=(gs.at(-1)||0)+1;await DB.set('games/'+room+'/groups/'+n,{stage:0})}
+async function autoPlace(){
+  const gs=groupIds(game);if(!gs.length)return;const upd={};const cnt={};gs.forEach(g=>cnt[g]=membersOf(game,g).length);
+  for(const [id,p] of Object.entries(game.players||{}))if(p.group==null){let best=gs[0];gs.forEach(g=>{if(cnt[g]<cnt[best])best=g});cnt[best]++;upd['players/'+id+'/group']=best}
+  await DB.update('games/'+room,upd);
+}
+function vAdminPin(){return `<div class="card"><h2>פאנל מנחים</h2><label class="lbl">קוד מנחה</label><input class="txt code4" id="pin" inputmode="numeric"><div id="pinmsg"></div><button class="btn" id="pinGo">כניסה</button></div>`}
+function vAdminStart(){
+  return `<div class="card hero"><h1>פאנל מנחים</h1><p class="muted">פותחים חדר חדש – הילדים נכנסים עם קוד החדר.</p>
+  <button class="btn" id="newRoom">פתיחת חדר חדש</button></div>`;
+}
+function joinUrl(){return location.origin+location.pathname+'?room='+room}
+function vAdmin(){
+  const players=Object.entries(game.players||{}), n=players.length, online=players.filter(([,p])=>p.online!==false).length;
+  const gs=groupIds(game), unassigned=players.filter(([,p])=>p.group==null);
+  const done=gs.filter(g=>groupDone(game,g)).length;
+  const st=game.status;
+  let h=`<div class="card"><div class="adminhead">
+     <div><div class="muted">קוד חדר</div><div class="roomcode">${room}</div><div class="muted" style="direction:ltr;text-align:right">${esc(joinUrl())}</div></div>
+     <div class="stats"><div class="stat"><b>${n}</b>משתתפים</div><div class="stat"><b>${online}</b>מחוברים</div><div class="stat"><b>${gs.length}</b>קבוצות</div><div class="stat"><b>${done}/${gs.length||0}</b>סיימו</div>
+       ${st==='playing'?`<div class="stat"><b id="timer" style="direction:ltr">--:--</b>זמן</div>`:''}</div>
+     ${st==='lobby'||st==='grouped'?'<div style="text-align:center"><div id="qr"></div><div class="muted" style="font-size:13px">הילדים יכולים לסרוק מהטלפון שלך</div></div>':''}</div>
+   <div style="margin-top:10px">
+     <span class="tag ${st==='playing'?'green':st==='ended'?'':'gold'}">${{lobby:'ממתינים להצטרפות',grouped:'קבוצות מוכנות',playing:'משחק פעיל',ended:'הסתיים'}[st]}</span>
+   </div>
+   <div style="margin-top:10px">
+     ${st==='lobby'||st==='grouped'?`
+       <label class="muted">מספר קבוצות: <select class="mv" id="ngroups">${Array.from({length:Math.max(1,Math.min(8,n))},(_,i)=>i+1).map(k=>`<option ${k===(gs.length||suggestGroups(n))?'selected':''}>${k}</option>`).join('')}</select>
+       (מומלץ ${suggestGroups(n)} – קבוצות של 4–5)</label><br>
+       <button class="btn small" id="distribute" ${n?'':'disabled'}>${st==='grouped'?'🔀 חלוקה מחדש':'🔀 חלוקה לקבוצות'}</button>
+       ${st==='grouped'?`<button class="btn small secondary" id="addGroup">➕ קבוצה</button>`:''}
+       <label class="muted">משך: <select class="mv" id="dur">${[8,10,12,15,20].map(m=>`<option ${m===game.durationMin?'selected':''} value="${m}">${m} דק׳</option>`).join('')}</select></label>
+       <button class="btn small green" id="start" ${st==='grouped'?'':'disabled'}>▶️ התחלת משחק</button>`:''}
+     ${st==='playing'?`<button class="btn small" id="end">⏹ סיום משחק</button><button class="btn small secondary" id="plus2">+2 דק׳</button>`:''}
+     ${unassigned.length&&gs.length?`<button class="btn small secondary" id="autoPlace">שיבוץ ${unassigned.length} שלא שובצו</button>`:''}
+     <button class="btn small secondary" id="copyLink">🔗 העתקת קישור</button>
+     <a class="btn small secondary" style="text-decoration:none" href="https://wa.me/?text=${encodeURIComponent('משחק הטמפלרים 🛡️ היכנסו כאן: '+joinUrl())}" target="_blank" rel="noopener">💬 שליחה בוואטסאפ</a>
+     <button class="btn small secondary" id="newRoom2">חדר חדש</button>
+   </div></div>`;
+  if(st==='ended')h+=vFinale(game);
+  else if(st==='playing'){h+=`<div class="card"><h3>🏆 טבלת מובילים</h3>${vLeaderboard(game,false)}</div>`}
+  if(st==='lobby'){
+    h+=`<div class="card"><h3>מי בחדר (${n})</h3><div class="chips">${players.sort((a,b)=>a[1].joinedAt-b[1].joinedAt).map(([id,p])=>`<span class="chip ${p.online===false?'off':''}">${esc(p.name)} <button class="x" data-kick="${id}">✕</button></span>`).join('')||'<span class="muted">עדיין אף אחד…</span>'}</div></div>`;
+  }
+  if(unassigned.length&&gs.length){h+=`<div class="card"><h3>לא משובצים</h3>${unassigned.map(([id,p])=>playerRow(id,p,null,gs)).join('')}</div>`}
+  if(gs.length){
+    h+='<div class="agrid">';
+    gs.forEach(g=>{
+      const gr=game.groups[g]||{}, s=gr.stage||0, m=membersOf(game,g), fin=groupDone(game,g);
+      const pen=penaltyOf(game,g), tries=pen.codeFails;
+      const prog=fin?100:Math.round(s/4*100);
+      h+=`<div class="gcard ${fin?'done':''}"><div class="topbar"><h3>קבוצה ${g}</h3><span class="tag ${fin?'green':''}">${fin?'✅ סיימה '+fmtTime(gr.finishedAt-(game.startedAt||0)):s>=3?'🗝️ שאלה אישית':'🔒 מנעול '+(s+1)}</span></div>
+        <div class="bar"><i style="width:${prog}%"></i></div>
+        <div class="muted" style="font-size:13px">${m.length} חברים · קודים שגויים: ${tries} · עונש: +${pen.sec} שנ׳${st!=='lobby'?` · קוד נוכחי: <b style="direction:ltr;display:inline-block">${s<3?codeFor(room,g,s):'—'}</b>`:''}</div>
+        ${m.map(x=>playerRow(x.id,x,g,gs)).join('')||'<p class="muted">ריקה</p>'}
+        ${st==='playing'&&!fin?`<button class="btn small secondary" data-skip="${g}">⏭ דילוג שלב</button>`:''}
+        ${st!=='playing'&&!m.length?`<button class="btn small secondary" data-delgroup="${g}">מחיקת קבוצה</button>`:''}
+      </div>`;
+    });
+    h+='</div>';
+  }
+  h+=vKey();
+  h+='<p class="muted" style="text-align:center;font-size:11px">גרסה '+APP_VERSION+'</p>';
+  return h;
+}
+const openDetails=new Set();
+function det(key,summary,body,cls=''){return `<details data-dkey="${key}" class="${cls}" ${openDetails.has(key)?'open':''}><summary>${summary}</summary>${body}</details>`}
+function vKey(){
+  let h='';
+  STAGES.forEach((st,s)=>{
+    let body='';
+    st.qs.forEach((q,r)=>{const src=(r+1)%5;
+      body+=`<div class="qa"><b>${ROLES[r].icon} ${esc(q.q)}</b>
+        <div class="muted">🔎 התשובה בקלף של: ${ROLES[src].icon} ${ROLES[src].name}</div>
+        <div>💡 <b>רמז:</b> ${esc(HINTS[s][r])}</div>
+        ${det('a'+s+'_'+r,'👁️ הצג תשובה',`<span class="ans">✓ ${esc(q.o[0])}</span>`)}</div>`});
+    h+=det('s'+s,st.title,body);
+  });
+  let sb='';SOLO.forEach((q,i)=>{sb+=`<div class="qa"><b>${esc(q.q)}</b><div>💡 <b>רמז:</b> ${esc(SOLO_HINTS[i])}</div>${det('so'+i,'👁️ הצג תשובה',`<span class="ans">✓ ${esc(q.o[0])}</span>`)}</div>`});
+  h+=det('solo','🗝️ שאלות אישיות',sb);
+  return `<div class="card key"><h3>📋 תשובות ורמזים</h3><p class="muted">השאלות זהות לכל הקבוצות (רק הקוד שונה). את הרמז אפשר להגיד לקבוצה תקועה – הוא לא מגלה את התשובה. התשובות מוסתרות כדי שילדים שמציצים לך בטלפון לא יראו אותן.</p>${h}</div>`;
+}
+function playerRow(id,p,g,gs){
+  let info='';
+  if(g!=null&&game.status==='playing'){
+    const s=game.groups?.[g]?.stage||0, roles=rolesOf(game,g,id);
+    if(s<3)info=roles.map(r=>{const v=p.picks?.[s+'_'+r];if(v==null)return `<span class="mini wait">${ROLES[r].icon} …</span>`;const ok=v===correctDigit(room,g,s,r);return `<span class="mini ${ok?'ok':'bad'}">${ROLES[r].icon} ${ok?'✓':'✗'}</span>`}).join('');
+    else info=p.solo?.done?`<span class="mini ok">אישי ✓${p.solo.wrong?' ('+p.solo.wrong+' טעויות)':''}</span>`:`<span class="mini wait">אישי…${p.solo?.wrong?' ('+p.solo.wrong+' טעויות)':''}</span>`;
+  }else if(g!=null){info=rolesOf(game,g,id).map(r=>ROLES[r].icon).join('')}
+  return `<div class="prow"><span class="dot ${p.online===false?'':'on'}"></span><span class="pname">${esc(p.name)}</span>${info}
+    <select class="mv" data-move="${id}"><option value="">העבר…</option>${gs.filter(x=>x!==g).map(x=>`<option value="${x}">לקבוצה ${x}</option>`).join('')}</select>
+    <button class="x" data-kick="${id}" title="הסרה">✕</button></div>`;
+}
+/* ===================================================================
+   RENDER
+   =================================================================== */
+function render(force){
+  if(IS_ADMIN)return renderAdmin(force);
+  if(me&&!game&&!unsub){listen(me.room);return}
+  if(me&&game===null&&unsub){/* room deleted or loading */}
+  const key=playerKey();
+  if(!force&&key===lastKey){patch();return}
+  lastKey=key; let html;
+  const [kind,g,s]=key.split('|');
+  if(kind==='loading')html='<div class="card hero">טוען…</div>';
+  else if(kind==='join')html=vJoin();
+  else if(kind==='kicked'){me=null;meSet(null);html=vJoin('יצאת מהחדר – אפשר להיכנס שוב')}
+  else if(kind==='lobby')html=vLobby();
+  else if(kind==='grouped')html=vGrouped(+g);
+  else if(kind==='stage')html=vStage(+g,+s);
+  else if(kind==='solo')html=vSolo(+g);
+  else if(kind==='finish')html=vFinish(+g);
+  else if(kind==='ended')html=vEnded();
+  const y=window.scrollY, sameScreen=app.dataset.screen===kind+g+s;
+  if(!['join','loading','kicked'].includes(kind)){
+    const midGame=['grouped','stage','solo'].includes(kind);
+    html+=kind==='ended'||kind==='finish'
+      ?'<button class="btn" id="leaveGame">🔄 כניסה למשחק חדש</button>'
+      :`<button class="btn secondary" id="leaveGame" data-mid="${midGame?1:''}">${kind==='lobby'?'↩️ טעיתי בשם או בקוד – יציאה':'🚪 יציאה מהמשחק'}</button>`;
+  }
+  html+='<p class="muted" style="text-align:center;font-size:11px;margin-top:18px">גרסה '+APP_VERSION+'</p>';
+  app.className=''; app.innerHTML='<div class="'+(sameScreen?'':'fade')+'">'+html+'</div>';
+  app.dataset.screen=kind+g+s;
+  if(sameScreen)window.scrollTo(0,y);else{window.scrollTo(0,0);codeDraft=['','','','',''];localMsg=''}
+  bindPlayer(); patch();
+}
+function patch(){
+  if(!game||!me)return;
+  const p=game.players?.[me.pid];if(!p)return;const g=p.group;
+  const t=document.getElementById('team');if(t&&g!=null){const s=game.groups?.[g]?.stage||0;t.innerHTML=teamChips(g,s)}
+  const lm=document.getElementById('lockmsg');if(lm&&g!=null){const s=game.groups?.[g]?.stage||0;lm.innerHTML=failMsg(g,s)}
+  tick();
+}
+function tick(){
+  if(!game)return;
+  const el=document.getElementById('timer');
+  if(el&&game.status==='playing'&&game.startedAt){
+    const left=game.startedAt+game.durationMin*60000-DB.now();
+    el.textContent=left>0?fmtTime(left):'00:00';el.classList.toggle('late',left<=60000);
+    const tu=document.getElementById('timeup');if(tu)tu.innerHTML=left<=0?'<div class="banner">⏰ הזמן נגמר! תסיימו מהר…</div>':'';
+  }
+  const cd=document.getElementById('cd');
+  if(cd){const l=Math.ceil((lockUntil-Date.now())/1000);if(l<=0){lastKey='';render()}else cd.textContent=l}
+}
+let adminDefer=false;
+function renderAdmin(force){
+  app.className='wide';
+  if(!adminPinOk){if(app.dataset.screen!=='pin'){app.innerHTML=vAdminPin();app.dataset.screen='pin';bindAdmin()}return}
+  const saved=lsGet('templers_admin_room');
+  if(!room&&saved){listen(saved);return}
+  if(!room||!game){if(app.dataset.screen!=='astart'){app.innerHTML=vAdminStart();app.dataset.screen='astart';bindAdmin()}return}
+  const a=document.activeElement;
+  if(!force&&a&&a.tagName==='SELECT'&&app.contains(a)){adminDefer=true;return}
+  adminDefer=false;
+  const y=window.scrollY;
+  app.innerHTML=vAdmin();
+  app.dataset.screen='admin';
+  window.scrollTo(0,y);
+  const qrEl=document.getElementById('qr');
+  if(qrEl&&window.QRCode){new QRCode(qrEl,{text:joinUrl(),width:200,height:200})}
+  bindAdmin(); tick();
+}
+
+/* ===================================================================
+   EVENTS
+   =================================================================== */
+function bindPlayer(){
+  const lv=document.getElementById('leaveGame');
+  if(lv)lv.onclick=()=>{
+    if(lv.dataset.mid&&!lv.dataset.sure){lv.dataset.sure=1;lv.textContent='בטוח? הקבוצה צריכה אותך! לחצו שוב ליציאה';return}
+    const p=me&&game?.players?.[me.pid];
+    if(p&&game.status!=='ended'&&!(p.group!=null&&groupDone(game,p.group)))DB.remove('games/'+me.room+'/players/'+me.pid);
+    if(unsub)unsub();unsub=null;me=null;meSet(null);game=undefined;room=null;lastKey='';
+    history.replaceState(null,'',location.pathname);render(true);
+  };
+  const jb=document.getElementById('joinBtn');
+  if(jb)jb.onclick=async()=>{jb.disabled=true;const err=await joinRoom(document.getElementById('jcode').value,document.getElementById('jname').value);
+    if(err){document.getElementById('jerr').innerHTML=`<div class="msg err">${esc(err)}</div>`;jb.disabled=false}};
+  app.querySelectorAll('[data-pick]').forEach(b=>b.onclick=()=>{
+    DB.set('games/'+room+'/players/'+me.pid+'/picks/'+b.dataset.pick,+b.dataset.v);
+  });
+  const slots=[...app.querySelectorAll('[data-slot]')];
+  slots.forEach((inp,i)=>{
+    inp.oninput=()=>{inp.value=inp.value.replace(/\D/g,'').slice(-1);codeDraft[i]=inp.value;inp.classList.remove('bad');if(inp.value&&slots[i+1])slots[i+1].focus()};
+    inp.onkeydown=e=>{if(e.key==='Backspace'&&!inp.value&&slots[i-1])slots[i-1].focus()};
+  });
+  const tc=document.getElementById('tryCode');
+  if(tc)tc.onclick=async()=>{
+    const g=game.players[me.pid].group, s=game.groups[g].stage||0, val=codeDraft.join(''), lm=document.getElementById('lockmsg');
+    if(val.length<5){lm.innerHTML='<div class="msg err">חסרות ספרות – צריך 5, אחת מכל תפקיד.</div>';return}
+    const code=codeFor(room,g,s);
+    if(val===code){
+      await DB.tx('games/'+room+'/groups/'+g+'/stage',cur=>((cur||0)===s?s+1:undefined));
+      await DB.set('games/'+room+'/groups/'+g+'/stageAt/'+(s+1),DB.ts());
+      return;
+    }
+    const wrong=[];for(let i=0;i<5;i++)if(val[i]!==code[i]){wrong.push(i);slots[i].classList.add('bad')}
+    const name=game.players[me.pid].name;
+    await DB.tx('games/'+room+'/groups/'+g+'/fails/'+s,f=>({count:((f&&f.count)||0)+1,by:name,wrong:wrong.join(',')}));
+  };
+  app.querySelectorAll('[data-solo]').forEach(b=>b.onclick=async()=>{
+    if(Date.now()<lockUntil)return;
+    const g=game.players[me.pid].group, idx=membersOf(game,g).findIndex(m=>m.id===me.pid), o=soloFor(room,g,idx).opts[+b.dataset.solo];
+    const base='games/'+room+'/players/'+me.pid+'/solo';
+    if(o.correct){
+      await DB.update(base,{done:true,at:DB.ts()});
+      // if everyone done -> mark group finished
+      const fresh=await DB.get('games/'+room);
+      if(membersOf(fresh,g).every(m=>m.solo?.done))await DB.tx('games/'+room+'/groups/'+g+'/finishedAt',v=>v==null?DB.now():undefined);
+    }else{
+      lockUntil=Date.now()+LOCKOUT_SEC*1000;
+      await DB.tx(base+'/wrong',w=>(w||0)+1);
+      lastKey='';render();
+    }
+  });
+}
+// when a group member is removed/moved and everyone remaining is done, finish the group
+function checkGroupFinish(){
+  if(!game||game.status!=='playing'||!me)return;const g=game.players?.[me.pid]?.group;if(g==null)return;
+  const gr=game.groups?.[g];if(!gr||gr.finishedAt||(gr.stage||0)<3)return;
+  const m=membersOf(game,g);if(m.length&&m.every(x=>x.solo?.done))DB.tx('games/'+room+'/groups/'+g+'/finishedAt',v=>v==null?DB.now():undefined);
+}
+setInterval(checkGroupFinish,2000);
+
+function bindAdmin(){
+  const $=id=>document.getElementById(id);
+  if($('pinGo'))$('pinGo').onclick=()=>{if($('pin').value.trim()===window.ADMIN_PIN){adminPinOk=true;lsSet('templers_admin_ok',true);app.dataset.screen='';render(true)}else $('pinmsg').innerHTML='<div class="msg err">קוד שגוי</div>'};
+  if($('newRoom'))$('newRoom').onclick=createRoom;
+  if($('newRoom2'))$('newRoom2').onclick=()=>{if($('newRoom2').dataset.sure){lsSet('templers_admin_room',null);room=null;game=null;if(unsub)unsub();unsub=null;adminView='panel';app.dataset.screen='';render(true)}else{$('newRoom2').dataset.sure=1;$('newRoom2').textContent='בטוח? לחצו שוב'}};
+  if($('distribute'))$('distribute').onclick=()=>distribute(+$('ngroups').value);
+  if($('addGroup'))$('addGroup').onclick=addGroup;
+  if($('autoPlace'))$('autoPlace').onclick=autoPlace;
+  if($('dur'))$('dur').onchange=()=>DB.set('games/'+room+'/durationMin',+$('dur').value);
+  if($('ngroups'))$('ngroups').onchange=()=>{if(adminDefer)render(true)};
+  if($('start'))$('start').onclick=async()=>{await autoPlace();await DB.update('games/'+room,{status:'playing',startedAt:DB.ts()})};
+  if($('end'))$('end').onclick=()=>{if($('end').dataset.sure)DB.update('games/'+room,{status:'ended',endedAt:DB.ts()});else{$('end').dataset.sure=1;$('end').textContent='בטוח? לחצו שוב'}};
+  if($('plus2'))$('plus2').onclick=()=>DB.set('games/'+room+'/durationMin',(game.durationMin||12)+2);
+  if($('copyLink'))$('copyLink').onclick=async()=>{try{await navigator.clipboard.writeText(joinUrl());$('copyLink').textContent='✓ הועתק'}catch(e){$('copyLink').textContent=joinUrl()}};
+  if($('back'))$('back').onclick=()=>{adminView='panel';render(true)};
+  app.querySelectorAll('[data-kick]').forEach(b=>b.onclick=()=>{if(b.dataset.sure)DB.remove('games/'+room+'/players/'+b.dataset.kick);else{b.dataset.sure=1;b.textContent='הסר?'}});
+  app.querySelectorAll('[data-move]').forEach(s=>s.onchange=async()=>{if(s.value)await DB.update('games/'+room+'/players/'+s.dataset.move,{group:+s.value});s.blur();render(true)});
+  app.querySelectorAll('select').forEach(s=>s.onblur=()=>{if(adminDefer)setTimeout(()=>render(true),50)});
+  app.querySelectorAll('details[data-dkey]').forEach(d=>d.addEventListener('toggle',()=>{d.open?openDetails.add(d.dataset.dkey):openDetails.delete(d.dataset.dkey)}));
+  app.querySelectorAll('[data-skip]').forEach(b=>b.onclick=async()=>{
+    const g=+b.dataset.skip, s=game.groups[g].stage||0;
+    if(s<3)await DB.set('games/'+room+'/groups/'+g+'/stage',s+1);
+    else await DB.set('games/'+room+'/groups/'+g+'/finishedAt',DB.now());
+  });
+  app.querySelectorAll('[data-delgroup]').forEach(b=>b.onclick=()=>DB.remove('games/'+room+'/groups/'+b.dataset.delgroup));
+}
+
+/* ===================================================================
+   BOOT
+   =================================================================== */
+if(!IS_ADMIN&&me&&params.get('room')&&params.get('room')!==me.room){me=null;meSet(null)}
+if(!IS_ADMIN&&me){
+  const st=await DB.get('games/'+me.room+'/players/'+me.pid);
+  if(st){listen(me.room);setTimeout(resumePresence,300)}else{me=null;meSet(null)}
+}
+if(!IS_ADMIN&&!me&&params.get('room')){/* prefilled */}
+DB.connected(c=>{if(c&&!IS_ADMIN)resumePresence()});
+render(true);
+</script>
+</body>
+</html>
